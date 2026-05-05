@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Bintang Utara</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F4F5F7;
+      --bg-card: #FFFFFF;
+      --ink: #1A1A1F;
+      --ink-soft: #4A4A54;
+      --ink-muted: #909099;
+      --accent: #C4602A;
+      --accent-light: #FDF0E8;
+      --green: #16A34A;
+      --green-light: #DCFCE7;
+      --red: #DC2626;
+      --red-light: #FEE2E2;
+      --border: rgba(26,26,31,0.1);
+      --radius: 12px;
+      --font-display: 'Lora', Georgia, serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+    body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; min-height: 100vh; }
+
+    /* NAV */
+    nav { background: var(--bg-card); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 60px; }
+    .nav-brand { font-family: var(--font-display); font-size: 16px; font-weight: 500; color: var(--ink); }
+    .nav-brand span { font-size: 12px; color: var(--ink-muted); font-family: var(--font-body); margin-left: 8px; }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-site-link { font-size: 13px; color: var(--ink-muted); text-decoration: none; }
+    .nav-site-link:hover { color: var(--ink); }
+
+    /* LAYOUT */
+    .container { max-width: 760px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+
+    h2 { font-family: var(--font-display); font-size: 22px; font-weight: 400; color: var(--ink); margin-bottom: 1.5rem; }
+
+    /* FORM CARD */
+    .form-card { background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); padding: 2rem; margin-bottom: 2rem; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1.1rem; }
+    .form-group:last-child { margin-bottom: 0; }
+    label { font-size: 12px; font-weight: 500; color: var(--ink-soft); letter-spacing: 0.04em; text-transform: uppercase; }
+
+    input, select, textarea {
+      font-family: var(--font-body); font-size: 14px;
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 12px; background: var(--bg);
+      color: var(--ink); outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); background: #fff; }
+    textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
+
+    /* RATING STARS */
+    .star-picker { display: flex; gap: 6px; }
+    .star-picker span {
+      font-size: 26px; cursor: pointer; color: #E0E0E6;
+      transition: color 0.1s; user-select: none;
+    }
+    .star-picker span.active { color: #F0A030; }
+
+    /* POSTER PREVIEW */
+    .poster-preview { margin-top: 8px; width: 80px; height: 112px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); display: none; }
+
+    /* DRAFT/PUBLISH TOGGLE */
+    .publish-toggle { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg); border-radius: 8px; border: 1px solid var(--border); }
+    .toggle-switch { position: relative; width: 44px; height: 24px; cursor: pointer; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-track { position: absolute; inset: 0; background: #D1D5DB; border-radius: 24px; transition: background 0.2s; }
+    .toggle-thumb { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .toggle-switch input:checked + .toggle-track { background: var(--green); }
+    .toggle-switch input:checked ~ .toggle-thumb { transform: translateX(20px); }
+    .toggle-label { font-size: 14px; color: var(--ink-soft); }
+    .toggle-label strong { color: var(--ink); }
+
+    /* BUTTONS */
+    .btn-row { display: flex; gap: 10px; margin-top: 1.5rem; }
+    .btn { font-family: var(--font-body); font-size: 14px; font-weight: 500; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.15s; }
+    .btn-primary { background: var(--ink); color: #fff; }
+    .btn-primary:hover { background: #2D2D35; }
+    .btn-primary:disabled { background: var(--ink-muted); cursor: not-allowed; }
+    .btn-secondary { background: transparent; color: var(--ink-soft); border: 1px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--ink-muted); color: var(--ink); }
+
+    /* ALERT */
+    .alert { padding: 12px 16px; border-radius: 8px; font-size: 14px; margin-bottom: 1.5rem; display: none; }
+    .alert.success { background: var(--green-light); color: var(--green); display: block; }
+    .alert.error { background: var(--red-light); color: var(--red); display: block; }
+
+    /* REVIEW LIST */
+    .review-list-card { background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+    .review-list-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .review-list-header h3 { font-family: var(--font-display); font-size: 16px; font-weight: 400; }
+    .review-row { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; border-bottom: 1px solid rgba(26,26,31,0.05); gap: 1rem; }
+    .review-row:last-child { border-bottom: none; }
+    .review-row-left { flex: 1; min-width: 0; }
+    .review-row-title { font-size: 14px; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .review-row-meta { font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+    .review-row-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .badge { font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 500; }
+    .badge-published { background: var(--green-light); color: var(--green); }
+    .badge-draft { background: var(--bg); color: var(--ink-muted); border: 1px solid var(--border); }
+    .btn-delete { font-size: 12px; color: var(--red); background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+    .btn-delete:hover { background: var(--red-light); }
+    .btn-toggle-pub { font-size: 12px; color: var(--ink-soft); background: none; border: 1px solid var(--border); cursor: pointer; padding: 4px 10px; border-radius: 6px; }
+    .btn-toggle-pub:hover { border-color: var(--ink-muted); color: var(--ink); }
+    .empty-list { padding: 2rem; text-align: center; color: var(--ink-muted); font-size: 14px; }
+
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+      .container { padding: 1.5rem 1rem 4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">Bintang Utara <span>Admin</span></div>
+  <div class="nav-right">
+    <a class="nav-site-link" href="index.html" target="_blank">Lihat website →</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <div id="alert" class="alert"></div>
+
+  <h2>Tulis Review Baru</h2>
+
+  <div class="form-card">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Kategori</label>
+        <select id="f-type">
+          <option value="film">Film</option>
+          <option value="buku">Buku</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Genre</label>
+        <input type="text" id="f-genre" placeholder="Drama, Fiksi, Sci-fi...">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Judul</label>
+      <input type="text" id="f-title" placeholder="Judul film atau buku">
+    </div>
+
+    <div class="form-group">
+      <label>Sutradara / Penulis</label>
+      <input type="text" id="f-author" placeholder="Nama sutradara atau penulis, tahun rilis">
+    </div>
+
+    <div class="form-group">
+      <label>Rating</label>
+      <div class="star-picker" id="star-picker">
+        <span data-v="1">★</span>
+        <span data-v="2">★</span>
+        <span data-v="3">★</span>
+        <span data-v="4">★</span>
+        <span data-v="5">★</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Review</label>
+      <textarea id="f-excerpt" placeholder="Tulis review kamu di sini..."></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Tanggal baca/tonton</label>
+        <input type="text" id="f-date" placeholder="Apr 2024">
+      </div>
+      <div class="form-group">
+        <label>Tahun rilis</label>
+        <input type="number" id="f-year" placeholder="2024">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Link poster / cover</label>
+      <input type="text" id="f-poster" placeholder="https://..." oninput="previewPoster(this.value)">
+      <img id="poster-preview" class="poster-preview" alt="preview">
+    </div>
+
+    <div class="form-group">
+      <label>Status</label>
+      <div class="publish-toggle">
+        <label class="toggle-switch">
+          <input type="checkbox" id="f-published">
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+        <span class="toggle-label" id="toggle-label">Draft — <strong>belum tampil di website</strong></span>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btn-save" onclick="saveReview()">Simpan Review</button>
+      <button class="btn btn-secondary" onclick="resetForm()">Reset</button>
+    </div>
+  </div>
+
+  <h2>Review yang Sudah Dibuat</h2>
+  <div class="review-list-card">
+    <div class="review-list-header">
+      <h3>Semua Review</h3>
+      <span id="total-count" style="font-size:13px;color:var(--ink-muted);">0 review</span>
+    </div>
+    <div id="review-list"><div class="empty-list">Belum ada review.</div></div>
+  </div>
+
+</div>
+
+<script>
+const SUPABASE_URL = 'https://jozczewmmkstcbwwkxxb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvemN6ZXdtbWtzdGNid3dreHhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MjU3MzgsImV4cCI6MjA5MzAwMTczOH0.gf30Q2Mnasw19Pbivi9xDqA7HjARgioWI1E5AIe4bCc';
+
+const HEADERS = {
+  'apikey': SUPABASE_KEY,
+  'Authorization': `Bearer ${SUPABASE_KEY}`,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=representation'
+};
+
+let selectedRating = 0;
+
+// Star picker
+document.querySelectorAll('#star-picker span').forEach(s => {
+  s.addEventListener('click', () => {
+    selectedRating = parseInt(s.dataset.v);
+    document.querySelectorAll('#star-picker span').forEach((x,i) => {
+      x.classList.toggle('active', i < selectedRating);
+    });
+  });
+  s.addEventListener('mouseover', () => {
+    const v = parseInt(s.dataset.v);
+    document.querySelectorAll('#star-picker span').forEach((x,i) => {
+      x.classList.toggle('active', i < v);
+    });
+  });
+  s.addEventListener('mouseout', () => {
+    document.querySelectorAll('#star-picker span').forEach((x,i) => {
+      x.classList.toggle('active', i < selectedRating);
+    });
+  });
+});
+
+// Published toggle label
+document.getElementById('f-published').addEventListener('change', function() {
+  document.getElementById('toggle-label').innerHTML = this.checked
+    ? 'Publish — <strong>langsung tampil di website</strong>'
+    : 'Draft — <strong>belum tampil di website</strong>';
+});
+
+function previewPoster(url) {
+  const img = document.getElementById('poster-preview');
+  if(url) { img.src = url; img.style.display = 'block'; }
+  else { img.style.display = 'none'; }
+}
+
+function showAlert(msg, type) {
+  const el = document.getElementById('alert');
+  el.textContent = msg;
+  el.className = `alert ${type}`;
+  setTimeout(() => { el.className = 'alert'; }, 4000);
+}
+
+async function saveReview() {
+  const title = document.getElementById('f-title').value.trim();
+  const author = document.getElementById('f-author').value.trim();
+  const genre = document.getElementById('f-genre').value.trim();
+  const excerpt = document.getElementById('f-excerpt').value.trim();
+  const date = document.getElementById('f-date').value.trim();
+  const year = parseInt(document.getElementById('f-year').value);
+  const type = document.getElementById('f-type').value;
+  const poster = document.getElementById('f-poster').value.trim();
+  const published = document.getElementById('f-published').checked;
+
+  if(!title || !author || !genre || !excerpt || !date || !year || !selectedRating) {
+    showAlert('Lengkapi semua field dulu ya!', 'error'); return;
+  }
+
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true; btn.textContent = 'Menyimpan...';
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/reviews`, {
+      method: 'POST',
+      headers: HEADERS,
+      body: JSON.stringify({ title, author, genre, excerpt, date, year, type, poster, rating: selectedRating, published })
+    });
+
+    if(res.ok) {
+      showAlert(published ? '✓ Review berhasil dipublish!' : '✓ Review tersimpan sebagai draft!', 'success');
+      resetForm();
+      loadReviews();
+    } else {
+      const err = await res.json();
+      showAlert('Gagal menyimpan: ' + (err.message || 'coba lagi'), 'error');
+    }
+  } catch(e) {
+    showAlert('Gagal menyimpan: ' + e.message, 'error');
+  }
+
+  btn.disabled = false; btn.textContent = 'Simpan Review';
+}
+
+function resetForm() {
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-author').value = '';
+  document.getElementById('f-genre').value = '';
+  document.getElementById('f-excerpt').value = '';
+  document.getElementById('f-date').value = '';
+  document.getElementById('f-year').value = '';
+  document.getElementById('f-poster').value = '';
+  document.getElementById('f-published').checked = false;
+  document.getElementById('poster-preview').style.display = 'none';
+  document.getElementById('toggle-label').innerHTML = 'Draft — <strong>belum tampil di website</strong>';
+  selectedRating = 0;
+  document.querySelectorAll('#star-picker span').forEach(x => x.classList.remove('active'));
+}
+
+async function loadReviews() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/reviews?order=created_at.desc`, {
+      headers: HEADERS
+    });
+    const data = await res.json();
+    document.getElementById('total-count').textContent = `${data.length} review`;
+
+    if(!data.length) {
+      document.getElementById('review-list').innerHTML = '<div class="empty-list">Belum ada review.</div>';
+      return;
+    }
+
+    document.getElementById('review-list').innerHTML = data.map(r => `
+      <div class="review-row" id="row-${r.id}">
+        <div class="review-row-left">
+          <div class="review-row-title">${r.title}</div>
+          <div class="review-row-meta">${r.type === 'film' ? 'Film' : 'Buku'} · ${r.genre} · ${r.year} · ${'★'.repeat(r.rating)}</div>
+        </div>
+        <div class="review-row-right">
+          <span class="badge ${r.published ? 'badge-published' : 'badge-draft'}">${r.published ? 'Published' : 'Draft'}</span>
+          <button class="btn-toggle-pub" onclick="togglePublish(${r.id}, ${r.published})">${r.published ? 'Jadikan Draft' : 'Publish'}</button>
+          <button class="btn-delete" onclick="deleteReview(${r.id})">Hapus</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+async function togglePublish(id, current) {
+  await fetch(`${SUPABASE_URL}/rest/v1/reviews?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: HEADERS,
+    body: JSON.stringify({ published: !current })
+  });
+  loadReviews();
+}
+
+async function deleteReview(id) {
+  if(!confirm('Yakin mau hapus review ini?')) return;
+  await fetch(`${SUPABASE_URL}/rest/v1/reviews?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: HEADERS
+  });
+  loadReviews();
+}
+
+loadReviews();
+</script>
+</body>
+</html>

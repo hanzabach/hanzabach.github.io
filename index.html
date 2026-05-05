@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Every Bit of Us — Every Bit of Us</title>
+  <title>Bintang Utara — Every Bit of Us</title>
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -227,7 +227,7 @@
 
 <nav>
   <div class="nav-brand" onclick="showLanding()">
-    <span class="nav-brand-main">Every Bit of Us</span>
+    <span class="nav-brand-main">Bintang Utara</span>
     <span class="nav-brand-sub">by @hanzabach</span>
   </div>
   <ul class="nav-links">
@@ -343,7 +343,7 @@
   </div>
 
   <footer>
-    <span class="brand">Every Bit of Us</span>
+    <span class="brand">Bintang Utara</span>
     <span class="handle">by @hanzabach · 2024</span>
   </footer>
 </div>
@@ -370,30 +370,35 @@
   <div class="timeline" id="timeline"></div>
 
   <footer>
-    <span class="brand">Every Bit of Us</span>
+    <span class="brand">Bintang Utara</span>
     <span class="handle">by @hanzabach · 2024</span>
   </footer>
 </div>
 
 <script>
 // =============================================
-// DATA REVIEW
+// SUPABASE CONFIG
 // =============================================
-const reviews = [
-  { type:'film', genre:'Sci-fi',   title:'Dune: Part Two',                       author:'Denis Villeneuve, 2024',   rating:5, excerpt:'Sekuel yang berhasil melampaui ekspektasi. Villeneuve membangun dunia Arrakis dengan skala epik yang jarang terlihat — visualnya memukau, tapi ceritanya tidak kalah kuat.',   date:'Apr 2024', year:2024, poster:'https://picsum.photos/seed/dune/342/500' },
-  { type:'film', genre:'Drama',    title:'Past Lives',                            author:'Celine Song, 2023',        rating:5, excerpt:'Film tentang pilihan dan jalan yang tidak diambil. Sangat tenang, sangat menyayat. Salah satu film paling emosional beberapa tahun terakhir.',                                    date:'Feb 2024', year:2024, poster:'https://picsum.photos/seed/pastlives/342/500' },
-  { type:'film', genre:'Drama',    title:'Oppenheimer',                           author:'Christopher Nolan, 2023',  rating:4, excerpt:'Ambisinya luar biasa dan Cillian Murphy memikul film ini dengan sangat baik. Tiga jam terasa berat di bagian persidangan, meski klimaksnya menggetarkan.',                       date:'Des 2023', year:2023, poster:'https://picsum.photos/seed/oppenheimer/342/500' },
-  { type:'film', genre:'Animasi',  title:'Spider-Man: Across the Spider-Verse',  author:'Joaquim Dos Santos, 2023', rating:5, excerpt:'Definisi baru animasi modern. Setiap frame terasa seperti lukisan yang bergerak — dan ceritanya tidak kalah emosionalnya.',                                                        date:'Jun 2023', year:2023, poster:'https://picsum.photos/seed/spiderman/342/500' },
-  { type:'buku', genre:'Fiksi',    title:'Bumi Manusia',                          author:'Pramoedya Ananta Toer',    rating:5, excerpt:'Karya monumental tentang pergolakan identitas di era kolonial. Minke adalah karakter yang begitu hidup — menyentuh sekaligus menyakitkan.',                                      date:'Mar 2024', year:2024, poster:'https://picsum.photos/seed/bumimanusia/342/500' },
-  { type:'buku', genre:'Fiksi',    title:'Normal People',                         author:'Sally Rooney',             rating:4, excerpt:'Ditulis dengan sangat intim — kamu bisa merasakan setiap keraguan antara Marianne dan Connell. Sedikit lambat di tengah, tapi penutupnya memuaskan.',                           date:'Jan 2024', year:2024, poster:'https://picsum.photos/seed/normalpeople/342/500' },
-  { type:'buku', genre:'Nonfiksi', title:'The Midnight Library',                  author:'Matt Haig',                rating:3, excerpt:'Premisnya menarik dan mudah dibaca, tapi terlalu mudah — setiap konflik diselesaikan terlalu rapi. Cocok bacaan santai, kurang berkesan.',                                     date:'Nov 2023', year:2023, poster:'https://picsum.photos/seed/midnightlib/342/500' },
-  { type:'buku', genre:'Fiksi',    title:'Pulang',                                author:'Tere Liye',                rating:4, excerpt:'Kisah menarik tentang dunia bawah tanah dan pencarian jati diri. Tere Liye berhasil membangun atmosfer kuat dan plot yang mengalir lancar.',                                   date:'Agt 2023', year:2023, poster:'https://picsum.photos/seed/pulang/342/500' },
-];
+const SUPABASE_URL = 'https://jozczewmmkstcbwwkxxb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvemN6ZXdtbWtzdGNid3dreHhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MjU3MzgsImV4cCI6MjA5MzAwMTczOH0.gf30Q2Mnasw19Pbivi9xDqA7HjARgioWI1E5AIe4bCc';
 
+let allReviews = [];
 let currentCat = 'film';
 let currentGenre = 'all';
 let currentRating = 0;
 let openYears = new Set();
+
+async function fetchReviews() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/reviews?published=eq.true&order=year.desc,created_at.desc`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    allReviews = await res.json();
+    updateCounts();
+  } catch(e) {
+    console.error('Gagal load reviews:', e);
+  }
+}
 
 function stars(n) {
   return [1,2,3,4,5].map(i=>`<span class="star${i>n?' empty':''}">★</span>`).join('');
@@ -406,8 +411,8 @@ function showLanding() {
 }
 
 function updateCounts() {
-  document.getElementById('count-film').textContent = reviews.filter(r=>r.type==='film').length;
-  document.getElementById('count-buku').textContent = reviews.filter(r=>r.type==='buku').length;
+  document.getElementById('count-film').textContent = allReviews.filter(r=>r.type==='film').length;
+  document.getElementById('count-buku').textContent = allReviews.filter(r=>r.type==='buku').length;
 }
 
 function showCategory(cat) {
@@ -422,7 +427,7 @@ function showCategory(cat) {
 }
 
 function buildGenreFilters(cat) {
-  const genres = [...new Set(reviews.filter(r=>r.type===cat).map(r=>r.genre))];
+  const genres = [...new Set(allReviews.filter(r=>r.type===cat).map(r=>r.genre))];
   document.getElementById('genre-btns').innerHTML =
     `<button class="fbtn active" onclick="filterGenre('all',this)">Semua</button>` +
     genres.map(g=>`<button class="fbtn" onclick="filterGenre('${g}',this)">${g}</button>`).join('');
@@ -451,7 +456,7 @@ function toggleYear(yr) {
 }
 
 function renderTimeline() {
-  let data = reviews.filter(r=>r.type===currentCat);
+  let data = allReviews.filter(r=>r.type===currentCat);
   if(currentGenre!=='all') data = data.filter(r=>r.genre===currentGenre);
   if(currentRating===5) data = data.filter(r=>r.rating===5);
   else if(currentRating===4) data = data.filter(r=>r.rating===4);
@@ -460,7 +465,7 @@ function renderTimeline() {
   document.getElementById('inner-subtitle').textContent = `${data.length} review`;
   const tl = document.getElementById('timeline');
 
-  if(!data.length) { tl.innerHTML='<div class="no-results">Tidak ada review ditemukan.</div>'; return; }
+  if(!data.length) { tl.innerHTML='<div class="no-results">Belum ada review di sini.</div>'; return; }
 
   const byYear = {};
   data.forEach(r=>{ if(!byYear[r.year]) byYear[r.year]=[]; byYear[r.year].push(r); });
@@ -509,7 +514,7 @@ function renderTimeline() {
   `).join('');
 }
 
-updateCounts();
+fetchReviews();
 </script>
 </body>
 </html>
